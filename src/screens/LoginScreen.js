@@ -16,7 +16,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <ImageBackground
-      source={require('../../assets/img/background.jpg')} // 设置背景图
+      source={require('../../assets/img/login-background.jpg')} // 设置背景图
       style={styles.background} // 背景样式
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
