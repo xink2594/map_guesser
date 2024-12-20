@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@dudigital/react-native-zoomable-view": "^1.1.4",
     "@expo/metro-runtime": "~4.0.0",
     "@react-native-community/geolocation": "^3.4.0",
     "@react-navigation/native": "^7.0.13",

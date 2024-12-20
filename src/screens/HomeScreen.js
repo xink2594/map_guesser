@@ -24,7 +24,7 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate('WorldGame', { mode: 'cs' })}
+            onPress={() => navigation.navigate('CSGuesser', { mode: 'cs' })}
           >
             <Text style={styles.buttonText}>CS-Guess</Text>
           </TouchableOpacity>

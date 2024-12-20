@@ -8,6 +8,7 @@ import MyScreen from './src/screens/MyScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import GameScreen from './src/screens/GameScreen';
 import WorldGameScreen from './src/screens/WorldGameScreen';
+import CSGuesserScreen from './src/screens/CSGuesserScreen';
 
 const Stack = createStackNavigator();
 
@@ -39,6 +40,11 @@ export default function App() {
           name="WorldGame" 
           component={WorldGameScreen} 
           options={{ title: '世界景点图寻' }} 
+        />
+        <Stack.Screen 
+          name="CSGuesser" 
+          component={CSGuesserScreen}
+          options={{ title: 'CS 图寻' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
