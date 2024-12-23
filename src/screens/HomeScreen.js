@@ -1,12 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import BackgroundWrapper from '../components/BackgroundWrapper';
 
 const HomeScreen = ({ navigation }) => {
   return (
-    <ImageBackground
-      source={require('../../assets/img/background.jpg')}
-      style={styles.background} // 背景图填充整个屏幕
-    >
+    <BackgroundWrapper>
       <View style={styles.container}>
         <Text style={styles.title}>图寻游戏</Text>
         <View style={styles.buttonContainer}>
@@ -28,12 +26,11 @@ const HomeScreen = ({ navigation }) => {
           >
             <Text style={styles.buttonText}>CS-Guess</Text>
           </TouchableOpacity>
+
         </View>
       </View>
 
-      {/* 将footer放在ImageBackground里面 */}
       <View style={styles.footer}>
-        {/* 退出按钮 */}
         <TouchableOpacity style={styles.navButton} onPress={() => {
           navigation.reset({
             index: 0,
@@ -43,27 +40,20 @@ const HomeScreen = ({ navigation }) => {
           <Text style={styles.navButtonText}>退出</Text>
         </TouchableOpacity>
 
-        {/* 我的按钮 */}
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('My')}>
           <Text style={styles.navButtonText}>我的</Text>
         </TouchableOpacity>
       </View>
-
-    </ImageBackground>
+    </BackgroundWrapper>
   );
 };
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)', // 半透明黑色背景
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   title: {
     fontSize: 36,
@@ -91,9 +81,9 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: 5,  // 减少上下内边距让按钮上移
+    paddingVertical: 5,
     position: 'absolute',
-    bottom: 50,  // 调整底部位置，使按钮上移
+    bottom: 50,
     left: 0,
   },
   navButton: {
@@ -107,7 +97,7 @@ const styles = StyleSheet.create({
   navButtonText: {
     color: '#fff',
     fontSize: 18,
-  },
+  }
 });
 
 export default HomeScreen;

@@ -1,28 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ImageBackground } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
-const MyScreen = () => {
+const MyScreen = ({ navigation }) => {
+  const [nickname, setNickname] = useState('用户名');
+  const [userId, setUserId] = useState('123456');
+
+  const loadUserProfile = async () => {
+    try {
+      const savedNickname = await AsyncStorage.getItem('userNickname');
+      const savedUserId = await AsyncStorage.getItem('userId');
+
+      if (savedNickname) setNickname(savedNickname);
+      if (savedUserId) setUserId(savedUserId);
+    } catch (error) {
+      console.error('加载用户信息失败:', error);
+    }
+  };
+
+  // 页面首次加载时获取用户信息
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
+
+  // 每次页面获得焦点时重新加载用户信息
+  useFocusEffect(
+    React.useCallback(() => {
+      loadUserProfile();
+    }, [])
+  );
+
   return (
     <ImageBackground
-      source={require('../../assets/img/background.jpg')} // 背景图路径
-      style={styles.background} // 背景图样式
+      source={require('../../assets/img/background.jpg')}
+      style={styles.background}
     >
       <View style={styles.container}>
         <Image
           style={styles.avatar}
-          source={{ uri: 'https://img1.baidu.com/it/u=2069843627,987151294&fm=253&fmt=auto&app=138&f=JPEG?w=505&h=500' }} // 替换成你的头像图片 URL
+          source={{ uri: 'https://img1.baidu.com/it/u=2069843627,987151294&fm=253&fmt=auto&app=138&f=JPEG?w=505&h=500' }}
         />
-        <Text style={styles.nickname}>昵称: 用户名</Text>
-        <Text style={styles.id}>ID: 123456</Text>
-        <TouchableOpacity style={styles.section} onPress={() => alert('跳转到个人资料修改页面')}>
+        <Text style={styles.nickname}>昵称: {nickname}</Text>
+        <Text style={styles.id}>ID: {userId}</Text>
+        <TouchableOpacity 
+          style={styles.section} 
+          onPress={() => navigation.navigate('ProfileEdit')}
+        >
           <Text style={styles.sectionText}>个人资料修改</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.section} onPress={() => alert('跳转到历史成绩页面')}>
+        <TouchableOpacity 
+          style={styles.section} 
+          onPress={() => navigation.navigate('ScoreHistoryScreen')}
+        >
           <Text style={styles.sectionText}>我的历史成绩</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.section} onPress={() => alert('跳转到系统设置页面')}>
-          <Text style={styles.sectionText}>系统设置</Text>
-        </TouchableOpacity>
+        
       </View>
     </ImageBackground>
   );

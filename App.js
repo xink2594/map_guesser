@@ -9,6 +9,8 @@ import LoginScreen from './src/screens/LoginScreen';
 import GameScreen from './src/screens/GameScreen';
 import WorldGameScreen from './src/screens/WorldGameScreen';
 import CSGuesserScreen from './src/screens/CSGuesserScreen';
+import ScoreHistoryScreen from './src/screens/ScoreHistoryScreen';
+import ProfileEditScreen from './src/screens/ProfileEditScreen';
 
 const Stack = createStackNavigator();
 
@@ -45,6 +47,16 @@ export default function App() {
           name="CSGuesser" 
           component={CSGuesserScreen}
           options={{ title: 'CS 图寻' }}
+        />
+        <Stack.Screen 
+          name="ScoreHistoryScreen" 
+          component={ScoreHistoryScreen} 
+          options={{ title: '历史成绩' }} 
+        />
+        <Stack.Screen 
+          name="ProfileEdit" 
+          component={ProfileEditScreen}
+          options={{ title: '个人资料修改' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

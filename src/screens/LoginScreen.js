@@ -1,22 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, ScrollView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isChecked, setIsChecked] = useState(false); // 控制勾选框的状态
+  const [isChecked, setIsChecked] = useState(false);
 
-  const handleLogin = () => {
+  // 登录处理
+  const handleLogin = async () => {
     if (username && password && isChecked) {
-      navigation.replace('Home');
+      try {
+        // 保存登录状态
+        await AsyncStorage.setItem('isLoggedIn', 'true');
+        await AsyncStorage.setItem('username', username);
+        navigation.replace('Home');
+      } catch (error) {
+        console.error('登录失败:', error);
+        alert('登录失败，请重试');
+      }
     } else {
       alert('请输入用户名、密码，并同意用户协议');
     }
   };
 
+  // 退出登录处理
+  const handleLogout = async () => {
+    try {
+      // 清除所有游戏记录和登录状态
+      await AsyncStorage.multiRemove([
+        'westlakeHistory',
+        'scoreHistory',
+        'csHistory',
+        'isLoggedIn',
+        'username'
+      ]);
+      
+      // 清除输入框
+      setUsername('');
+      setPassword('');
+      setIsChecked(false);
+      
+    } catch (error) {
+      console.error('退出登录失败:', error);
+      alert('退出登录失败，请重试');
+    }
+  };
+
+  // 检查登录状态
+  const checkLoginStatus = async () => {
+    try {
+      const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
+      if (isLoggedIn === 'true') {
+        // 如果已登录，清除所有记录并重置登录状态
+        await handleLogout();
+      }
+    } catch (error) {
+      console.error('检查登录状态失败:', error);
+    }
+  };
+
+  // 组件加载时检查登录状态
+  useEffect(() => {
+    checkLoginStatus();
+  }, []);
+
   return (
     <ImageBackground
-      source={require('../../assets/img/login-background.jpg')} // 设置背景图
+      source={require('../../assets/img/background.jpg')} // 设置背景图
       style={styles.background} // 背景样式
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>

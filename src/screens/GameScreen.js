@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   SafeAreaView
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import { WESTLAKE_SPOTS } from '../constants/WestLake';
 import { calculateDistance } from '../utils/distance';
 
@@ -23,6 +23,9 @@ export default function GameScreen() {
   const [currentSpot, setCurrentSpot] = useState(null);
   const [distance, setDistance] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [score, setScore] = useState(0);
+  const [showActualLocation, setShowActualLocation] = useState(false);
+  const [currentScore, setCurrentScore] = useState(0);
 
   const getRandomSpot = () => {
     const randomIndex = Math.floor(Math.random() * WESTLAKE_SPOTS.length);
@@ -34,6 +37,8 @@ export default function GameScreen() {
   }, []);
 
   const handleMapPress = (e) => {
+    if (showActualLocation) return; 
+
     const { latitude, longitude } = e.nativeEvent.coordinate;
     setSelectedLocation({ latitude, longitude });
     
@@ -47,25 +52,41 @@ export default function GameScreen() {
   };
 
   const handleConfirmLocation = () => {
-    if (!selectedLocation) {
-      Alert.alert("提示", "请先在地图上选择一个位置");
-      return;
-    }
+    if (!selectedLocation || showActualLocation) return;
+    // if (!selectedLocation) {
+    //   Alert.alert("提示", "请先在地图上选择一个位置");
+    //   return;
+    // }
 
-    Alert.alert(
-      "选中的位置",
-      `距离实际位置: ${distance} 米\n纬度: ${selectedLocation.latitude.toFixed(4)}\n经度: ${selectedLocation.longitude.toFixed(4)}`,
-      [
-        { 
-          text: "下一题", 
-          onPress: () => {
-            setCurrentSpot(getRandomSpot());
-            setSelectedLocation(null);
-            setDistance(null);
-          }
-        }
-      ]
-    );
+    // 计算得分（距离越近得分越高）
+    const newScore = Math.max(0, Math.round(10000 - distance/1000));
+    setCurrentScore(newScore);
+    setShowActualLocation(true);
+
+    // Alert.alert(
+    //   "位置确认",
+    //   `距离实际位置: ${distance/1000} 公里\n本次得分: ${newScore}分`,
+    //   [
+    //     { 
+    //       text: "下一题", 
+    //       onPress: () => {
+    //         setScore(score + newScore);
+    //         // setCurrentSpot(getRandomSpot());
+    //         // setSelectedLocation(null);
+    //         setDistance(null);
+    //       }
+    //     }
+    //   ]
+    // );
+  };
+
+  const handleNextSpot = () => {
+    setScore(score + currentScore);
+    setCurrentSpot(getRandomSpot());
+    setSelectedLocation(null);
+    setDistance(null);
+    setShowActualLocation(false);
+    setCurrentScore(0);
   };
 
   const ImageModal = () => (
@@ -100,28 +121,67 @@ export default function GameScreen() {
         <MapView
           style={styles.map}
           initialRegion={{
-            latitude: 30.2590,
-            longitude: 120.1490,
+            latitude: 30.259,
+            longitude: 120.149,
             latitudeDelta: 0.02,
             longitudeDelta: 0.02,
           }}
           onPress={handleMapPress}
         >
           {selectedLocation && (
-            <Marker coordinate={selectedLocation} />
+            <Marker 
+              coordinate={selectedLocation}
+              pinColor="red"
+            />
+          )}
+          
+          {showActualLocation && (
+            <>
+              <Marker 
+                coordinate={currentSpot.coordinates}
+                pinColor="green"
+              />
+              <Polyline
+                coordinates={[
+                  selectedLocation,
+                  currentSpot.coordinates
+                ]}
+                strokeColor="#000"
+                strokeWidth={2}
+                lineDashPattern={[5, 5]}
+              />
+            </>
           )}
         </MapView>
-        
-        <View style={styles.infoContainer}>
+
+        {/* 悬浮信息框 */}
+        <View style={styles.floatingInfo}>
+          <Text style={styles.scoreText}>总分: {score}</Text>
           {/* {distance && (
             <Text style={styles.distanceText}>
-              距离: {distance} 米
+              距离: {(distance/1000).toFixed(1)} 公里
             </Text>
           )} */}
+          {showActualLocation && (
+            <Text style={styles.currentScoreText}>
+              本次得分: {currentScore}
+            </Text>
+          )}
+        </View>
+        
+        {/* 按钮容器 */}
+        <View style={styles.buttonContainer}>
           <Button
             title="确定位置"
             onPress={handleConfirmLocation}
+            disabled={!selectedLocation || showActualLocation}
           />
+          {showActualLocation && (
+            <Button
+              title="下一题"
+              onPress={handleNextSpot}
+            />
+          )}
         </View>
       </View>
 
@@ -200,7 +260,7 @@ const styles = StyleSheet.create({
   viewFullImage: {
     fontSize: 14,
     color: '#666',
-    marginTop: 5,
+    marginTop: 0,
   },
   modalContainer: {
     flex: 1,
@@ -214,5 +274,39 @@ const styles = StyleSheet.create({
   modalImage: {
     width: screenWidth,
     height: screenHeight * 0.8,
+  },
+  scoreText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: '#2196F3',
+    marginBottom: 10,
+  },
+  floatingInfo: {
+    position: 'absolute',
+    top: 20,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    padding: 15,
+    borderRadius: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    // backgroundColor: 'rgba(255,255,255,0.9)',
+    padding: 10,
+    borderRadius: 10,
+    // elevation: 5,
   },
 });

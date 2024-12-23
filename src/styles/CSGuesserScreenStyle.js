@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
       backgroundColor: 'rgba(255, 255, 255, 0.8)',
       padding: 10,
       height: 120,
-      // borderBottomWidth: 1,
+      borderBottomWidth: 1,
       borderBottomColor: '#ddd',
     },
     roundText: {
@@ -129,5 +129,22 @@ export const styles = StyleSheet.create({
         color: 'red',
         textAlign: 'center',
         marginTop: 20,
-      },
+    },
+    loadingText: {
+      fontSize: 16,
+      color: '#000',
+      textAlign: 'center',
+    },
+    instruction: {
+      fontSize: 16,
+      color: '#000',
+      textAlign: 'center',
+      marginVertical: 10,
+    },
+    mapName: {
+      fontSize: 14,
+      color: '#000',
+      textAlign: 'center',
+      marginTop: 5,
+    },
   });

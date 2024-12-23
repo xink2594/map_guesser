@@ -7,6 +7,7 @@ export const CS_MAPS = [
       spots: [
         {
           id: '1',
+          name: 'a',
           image: require('../../assets/img/cs/spots/dust2/a_site.png'),
           coordinates: { x: 82.7, y: 15.6 }
         },
@@ -20,6 +21,7 @@ export const CS_MAPS = [
       spots: [
         {
           id: '1',
+          name: 'p',
           image: require('../../assets/img/cs/spots/mirage/palace.png'),
           coordinates: { x: 72.3, y: 78.1 }
         },
@@ -34,6 +36,7 @@ export const CS_MAPS = [
         spots: [
           {
             id: '1',
+            name: 's',
             image: require('../../assets/img/cs/spots/inferno/study.png'),
             coordinates: { x: 94.4, y: 48.6 }
           },
@@ -48,11 +51,13 @@ export const CS_MAPS = [
         spots: [
           {
             id: '1',
+            name: 'c',
             image: require('../../assets/img/cs/spots/ancient/circle.png'),
             coordinates: { x: 27.8, y: 31.0 }
           },
           {
             id: '2',
+            name: 'c',
             image: require('../../assets/img/cs/spots/ancient/ct.png'),
             coordinates: { x: 57.7, y: 13.3 }
           },
