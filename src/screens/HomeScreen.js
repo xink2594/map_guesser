@@ -1,53 +1,54 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ImageBackground
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import BackgroundWrapper from '../components/BackgroundWrapper';
 
-export default function HomeScreen({ navigation }) {
+const HomeScreen = ({ navigation }) => {
   return (
-    <ImageBackground
-      source={require('../../assets/img/background.jpg')}
-      style={styles.background}
-    >
+    <BackgroundWrapper>
       <View style={styles.container}>
         <Text style={styles.title}>图寻游戏</Text>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.button}
             onPress={() => navigation.navigate('Game', { mode: 'westlake' })}
           >
             <Text style={styles.buttonText}>西湖景点</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.button}
             onPress={() => navigation.navigate('WorldGame', { mode: 'world' })}
           >
             <Text style={styles.buttonText}>世界景点</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate('WorldGame', { mode: 'world' })}
+            onPress={() => navigation.navigate('WorldGame', { mode: 'cs' })}
           >
             <Text style={styles.buttonText}>CS-Guess</Text>
           </TouchableOpacity>
+
         </View>
       </View>
-    </ImageBackground>
+
+      <View style={styles.footer}>
+        <TouchableOpacity style={styles.navButton} onPress={() => {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+          });
+        }}>
+          <Text style={styles.navButtonText}>退出</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('My')}>
+          <Text style={styles.navButtonText}>我的</Text>
+        </TouchableOpacity>
+      </View>
+    </BackgroundWrapper>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
   container: {
     flex: 1,
     alignItems: 'center',
@@ -76,4 +77,27 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
+  footer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 5,
+    position: 'absolute',
+    bottom: 50,
+    left: 0,
+  },
+  navButton: {
+    width: '40%',
+    height: 50,
+    backgroundColor: '#007BFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+  },
+  navButtonText: {
+    color: '#fff',
+    fontSize: 18,
+  }
 });
+
+export default HomeScreen;

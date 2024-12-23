@@ -14,6 +14,7 @@ import {
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { WORLD_SPOTS } from '../constants/World';
 import { calculateDistance } from '../utils/distance';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -80,8 +81,34 @@ export default function WorldGameScreen() {
     // );
   };
 
-  const handleNextSpot = () => {
-    setScore(score + currentScore);
+  const handleNextSpot = async () => {
+    const finalScore = score + currentScore;
+    setScore(finalScore);
+    
+    // 保存分数记录
+    try {
+      // 获取现有历史记录
+      const existingHistory = await AsyncStorage.getItem('scoreHistory');
+      const history = existingHistory ? JSON.parse(existingHistory) : [];
+      
+      // 添加新记录
+      const newRecord = {
+        score: finalScore,
+        date: new Date().toLocaleString('zh-CN'),
+      };
+      
+      // 将新记录添加到历史记录中
+      history.unshift(newRecord);
+      
+      // 只保留最近的20条记录
+      const updatedHistory = history.slice(0, 20);
+      
+      // 保存更新后的历史记录
+      await AsyncStorage.setItem('scoreHistory', JSON.stringify(updatedHistory));
+    } catch (error) {
+      console.error('保存分数失败:', error);
+    }
+
     setCurrentSpot(getRandomSpot());
     setSelectedLocation(null);
     setDistance(null);
@@ -157,11 +184,6 @@ export default function WorldGameScreen() {
         {/* 悬浮信息框 */}
         <View style={styles.floatingInfo}>
           <Text style={styles.scoreText}>总分: {score}</Text>
-          {/* {distance && (
-            <Text style={styles.distanceText}>
-              距离: {(distance/1000).toFixed(1)} 公里
-            </Text>
-          )} */}
           {showActualLocation && (
             <Text style={styles.currentScoreText}>
               本次得分: {currentScore}
@@ -171,16 +193,25 @@ export default function WorldGameScreen() {
         
         {/* 按钮容器 */}
         <View style={styles.buttonContainer}>
-          <Button
-            title="确定位置"
+          <TouchableOpacity
+            style={[
+              styles.confirmButton,
+              (!selectedLocation || showActualLocation) && styles.disabledButton,
+              selectedLocation && !showActualLocation && styles.activeButton
+            ]}
             onPress={handleConfirmLocation}
             disabled={!selectedLocation || showActualLocation}
-          />
+          >
+            <Text style={styles.buttonText}>确定位置</Text>
+          </TouchableOpacity>
+          
           {showActualLocation && (
-            <Button
-              title="下一题"
+            <TouchableOpacity
+              style={[styles.confirmButton, styles.activeButton]}
               onPress={handleNextSpot}
-            />
+            >
+              <Text style={styles.buttonText}>下一题</Text>
+            </TouchableOpacity>
           )}
         </View>
       </View>
@@ -304,9 +335,33 @@ const styles = StyleSheet.create({
     right: 20,
     flexDirection: 'row',
     justifyContent: 'space-around',
-    // backgroundColor: 'rgba(255,255,255,0.9)',
     padding: 10,
-    borderRadius: 10,
-    // elevation: 5,
+  },
+  confirmButton: {
+    backgroundColor: 'rgba(33, 150, 243, 0.6)', // 调整透明度从0.4改为0.6
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    minWidth: 100,
+    alignItems: 'center',
+  },
+  disabledButton: {
+    backgroundColor: 'rgba(33, 150, 243, 0.6)', // 同样调整透明度从0.4改为0.6
+  },
+  activeButton: {
+    backgroundColor: 'rgba(33, 150, 243, 0.9)', // 保持不变
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
