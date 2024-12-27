@@ -59,7 +59,7 @@ export default function WorldGameScreen() {
     // }
 
     // 计算得分（距离越近得分越高）
-    const newScore = Math.max(0, Math.round(10000 - distance/1000));
+    const newScore = Math.max(100, Math.round(1000 - distance/5000));
     setCurrentScore(newScore);
     setShowActualLocation(true);
 

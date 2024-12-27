@@ -102,10 +102,10 @@ export default function CSGuesserScreen() {
       transformOrigin: 'left',
       borderWidth: 2,
       borderStyle: 'dashed',
-      borderColor: '#ffffff',
+      borderColor: '#FFFFFF',
     };
   };
-  
+
   const handleSubmitPosition = () => {
     if (!selectedPosition) return;
     
@@ -115,7 +115,7 @@ export default function CSGuesserScreen() {
     
     if (mapIsCorrect) {
       const distance = calculateDistance(selectedPosition, currentSpot.coordinates);
-      const newScore = Math.max(20, Math.round(100 - distance * 2));
+      const newScore = Math.max(0, Math.round(100 - distance * 2));
       setCurrentScore(newScore);
       setScore(prevScore => prevScore + newScore);
     } else {
@@ -136,11 +136,20 @@ export default function CSGuesserScreen() {
       setGameOver(true);
       Alert.alert(
         "游戏结束",
-        `完成${MAX_ROUNDS}道题目\n总分: ${score}分`
+        `完成${MAX_ROUNDS}道题目\n总分: ${score}分`,
+        [
+          { 
+            text: "确定始", 
+            onPress: () => {
+              // 重置所有状态
+              
+            }
+          }
+        ]
       );
       return;
     }
-  
+
     const nextSpot = getRandomSpot();
     setCurrentSpot(nextSpot);
     setUsedSpots(prev => [...prev, nextSpot]);
@@ -150,9 +159,8 @@ export default function CSGuesserScreen() {
     setShowMapSelection(true);
     setShowCorrectPosition(false);
     setCurrentScore(null);
-    setIsMapCorrect(false);
   };
-  
+
   if (!currentSpot) return (
     <View style={styles.container}>
       <Text style={styles.errorText}>无法加载题目，请重新开始游戏</Text>
@@ -164,7 +172,7 @@ export default function CSGuesserScreen() {
       {/* 分数显示区域 */}
       <View style={styles.scoreArea}>
         <Text style={styles.roundText}>第 {currentRound}/{MAX_ROUNDS} 题</Text>
-        {currentScore  && (
+        {currentScore !== null && (
           <Text style={styles.currentScoreText}>
             本题得分: {currentScore}
           </Text>
@@ -210,91 +218,96 @@ export default function CSGuesserScreen() {
       ) : (
         /* 位置选择界面 */
         <View style={styles.positionSelection}>
-        <View style={styles.headerButtons}>
-          <Button
-            title="返回选择地图"
-            onPress={handleBackToMapSelection}
-            disabled={showCorrectPosition}
-          />
-          {selectedPosition && !showCorrectPosition && (
+          <View style={styles.headerButtons}>
             <Button
-              title="提交位置"
-              onPress={handleSubmitPosition}
+              title="返回选择地图"
+              onPress={handleBackToMapSelection}
+              disabled={showCorrectPosition} // 提交后禁用返回按钮
             />
-          )}
-          {showCorrectPosition && (
-            <Button
-              title="下一题"
-              onPress={handleNextRound}
-            />
-          )}
-        </View>
-      
-        <Pressable
-          onPress={handlePositionSelect}
-          style={({pressed}) => [
-            styles.mapContainer,
-            pressed && styles.mapPressed
-          ]}
-        >
-          <ImageBackground
-            source={selectedMap.fullMap}
-            style={styles.fullMap}
-            resizeMode="contain"
-          >
-            {/* 未提交答案，地图正确，显示select */}
             {selectedPosition && !showCorrectPosition && (
-              <View
-                style={[
-                  styles.marker,
-                  styles.selectedMarker,
-                  {
-                    left: `${selectedPosition.x}%`,
-                    top: `${selectedPosition.y}%`
-                  }
-                ]}
+              <Button
+                title="提交位置"
+                onPress={handleSubmitPosition}
               />
             )}
-            {/* 地图正确，显示select和correct，line */}
             {showCorrectPosition && (
-            <>
-                {/* map correct--select,line */}
-                { isMapCorrect && (
-                <>
-                    <View
-                      style={[
-                        styles.marker,
-                        styles.selectedMarker,
-                        {
-                          left: `${selectedPosition.x}%`,
-                          top: `${selectedPosition.y}%`
-                        }
-                      ]}
-                    />
-                    <View
-                      style={[
-                        styles.line,
-                        calculateLineStyle(selectedPosition, currentSpot.coordinates)
-                      ]}
-                    />
-                </>
-                )}
-                
-                {/* 显示正确位置 */}
-                <View style={[
-                        styles.marker,
-                          styles.correctMarker,
-                          {
-                            left: `${currentSpot.coordinates.x}%`,
-                            top: `${currentSpot.coordinates.y}%`
-                          }
-                      ]} />
-            </>
+              <Button
+                title="下一题"
+                onPress={handleNextRound}
+              />
             )}
-          </ImageBackground>
-        </Pressable>
-      </View>
+          </View>
+
+          <Pressable
+            onPress={handlePositionSelect}
+            style={({pressed}) => [
+              styles.mapContainer,
+              pressed && styles.mapPressed
+            ]}
+            disabled={showCorrectPosition} // 提交后禁用点击
+          >
+            <ImageBackground
+              source={selectedMap.fullMap}
+              style={styles.fullMap}
+              resizeMode="contain"
+            >
+              {/* 未提交答案时显示选择位置 */}
+              {selectedPosition && !showCorrectPosition && (
+                <View
+                  style={[
+                    styles.marker,
+                    styles.selectedMarker,
+                    {
+                      left: `${selectedPosition.x}%`,
+                      top: `${selectedPosition.y}%`
+                    }
+                  ]}
+                />
+              )}
+              
+              {/* 提交后的显示逻辑 */}
+              {showCorrectPosition && (
+                <>
+                  {/* 地图正确时显示选择位置和连线 */}
+                  {isMapCorrect && (
+                    <>
+                      <View
+                        style={[
+                          styles.marker,
+                          styles.selectedMarker,
+                          {
+                            left: `${selectedPosition.x}%`,
+                            top: `${selectedPosition.y}%`
+                          }
+                        ]}
+                      />
+                      <View 
+                        style={[
+                          styles.line,
+                          calculateLineStyle(selectedPosition, currentSpot.coordinates)
+                        ]} 
+                      />
+                    </>
+                  )}
+                  
+                  {/* 无论地图是否正确都显示正确位置 */}
+                  <View
+                    style={[
+                      styles.marker,
+                      styles.correctMarker,
+                      {
+                        left: `${currentSpot.coordinates.x}%`,
+                        top: `${currentSpot.coordinates.y}%`
+                      }
+                    ]}
+                  />
+                </>
+              )}
+            </ImageBackground>
+          </Pressable>
+        </View>
       )}
     </View>
   );
 }
+

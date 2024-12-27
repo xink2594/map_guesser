@@ -14,6 +14,7 @@ import {
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { WESTLAKE_SPOTS } from '../constants/WestLake';
 import { calculateDistance } from '../utils/distance';
+// import { styles } from '../styles/CSGuesserScreenStyle';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -59,7 +60,7 @@ export default function GameScreen() {
     // }
 
     // 计算得分（距离越近得分越高）
-    const newScore = Math.max(0, Math.round(10000 - distance/1000));
+    const newScore = Math.max(20, Math.round(100 - distance/25));
     setCurrentScore(newScore);
     setShowActualLocation(true);
 

@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: 'rgb(255, 255, 255)',
+      backgroundColor: 'rgba(255, 255, 255, 0.8)',
     },
     scoreArea: {
       backgroundColor: 'rgba(255, 255, 255, 0.8)',
@@ -51,10 +51,12 @@ export const styles = StyleSheet.create({
       padding: 20,
     },
     instruction: {
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: 'bold',
-      marginBottom: 20,
+      color: '#000',
       textAlign: 'center',
+      marginVertical: 10,
+      marginBottom: 20,
     },
     mapsGrid: {
       flexDirection: 'row',
@@ -71,6 +73,8 @@ export const styles = StyleSheet.create({
       borderRadius: 8,
     },
     mapName: {
+      fontSize: 14,
+      color: '#000',
       textAlign: 'center',
       marginTop: 5,
     },
@@ -135,16 +139,7 @@ export const styles = StyleSheet.create({
       color: '#000',
       textAlign: 'center',
     },
-    instruction: {
-      fontSize: 16,
-      color: '#000',
-      textAlign: 'center',
-      marginVertical: 10,
-    },
-    mapName: {
-      fontSize: 14,
-      color: '#000',
-      textAlign: 'center',
-      marginTop: 5,
+    mapPressed: {
+      // opacity: 0.01,
     },
   });
