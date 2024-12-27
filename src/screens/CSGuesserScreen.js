@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { CS_MAPS } from '../constants/CS';
 import { styles } from '../styles/CSGuesserScreenStyle';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const screenWidth = Dimensions.get('window').width;
 const MAX_ROUNDS = 5; // 最大题目数
@@ -131,22 +132,46 @@ export default function CSGuesserScreen() {
     );
   };
 
-  const handleNextRound = () => {
+  const handleNextRound = async () => {
     if (currentRound >= MAX_ROUNDS) {
       setGameOver(true);
       Alert.alert(
         "游戏结束",
         `完成${MAX_ROUNDS}道题目\n总分: ${score}分`,
-        [
-          { 
-            text: "确定始", 
-            onPress: () => {
-              // 重置所有状态
-              
-            }
-          }
-        ]
+        [{ text: "确定", onPress: () => {
+          setCurrentRound(1);
+          setScore(0);
+          setGameOver(false);
+          setUsedSpots([]);
+          setSelectedMap(null);
+          setSelectedPosition(null);
+          setShowMapSelection(true);
+          setShowCorrectPosition(false);
+          setCurrentScore(null);
+          setIsMapCorrect(false);
+          const initialSpot = getRandomSpot();
+          setCurrentSpot(initialSpot);
+          setUsedSpots([initialSpot]);
+        }}]
       );
+
+      // 后台保存分数记录
+      try {
+        const existingHistory = await AsyncStorage.getItem('csHistory');
+        const history = existingHistory ? JSON.parse(existingHistory) : [];
+        
+        const newRecord = {
+          score: score,
+          date: new Date().toLocaleString('zh-CN'),
+        };
+        
+        history.unshift(newRecord);
+        const updatedHistory = history.slice(0, 20);
+        await AsyncStorage.setItem('csHistory', JSON.stringify(updatedHistory));
+      } catch (error) {
+        console.error('保存分数失败:', error);
+      }
+
       return;
     }
 
