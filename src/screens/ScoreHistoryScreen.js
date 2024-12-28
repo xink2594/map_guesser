@@ -32,7 +32,7 @@ const ScoreHistoryScreen = () => {
         setCsHistory(JSON.parse(cs));
       }
     } catch (error) {
-      console.error('加载历史���录失败:', error);
+      console.error('加载历史记录失败:', error);
     }
   };
 

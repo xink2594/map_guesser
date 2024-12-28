@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
     scoreArea: {
       backgroundColor: 'rgba(255, 255, 255, 0.8)',
       padding: 10,
-      height: 120,
+      height: 100,
       borderBottomWidth: 1,
       borderBottomColor: '#ddd',
     },

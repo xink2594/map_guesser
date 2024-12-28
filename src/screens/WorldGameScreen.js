@@ -15,6 +15,7 @@ import MapView, { Marker, Polyline } from 'react-native-maps';
 import { WORLD_SPOTS } from '../constants/World';
 import { calculateDistance } from '../utils/distance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { styles } from '../styles/WorldGameScreenStyle';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -27,15 +28,41 @@ export default function WorldGameScreen() {
   const [score, setScore] = useState(0);
   const [showActualLocation, setShowActualLocation] = useState(false);
   const [currentScore, setCurrentScore] = useState(0);
+  const [questionCount, setQuestionCount] = useState(1);
+  const [questionSequence, setQuestionSequence] = useState([]);
+  const mapRef = React.useRef(null);
+
+  const generateQuestionSequence = () => {
+    const allIndices = Array.from({ length: WORLD_SPOTS.length }, (_, i) => i);
+    const shuffled = [...allIndices];
+    
+    // Fisher-Yates 洗牌算法
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    
+    // 取前5个作为题目序列
+    return shuffled.slice(0, 5);
+  };
 
   const getRandomSpot = () => {
-    const randomIndex = Math.floor(Math.random() * WORLD_SPOTS.length);
-    return WORLD_SPOTS[randomIndex];
+    // 如果是新游戏（问题序列为空），生成新的题目序列
+    if (questionSequence.length === 0) {
+      const newSequence = generateQuestionSequence();
+      setQuestionSequence(newSequence);
+      return WORLD_SPOTS[questionSequence[questionCount - 1]];
+    }
+    
+    // 返回当前序列中对应的题目
+    return WORLD_SPOTS[questionSequence[questionCount - 1]];
   };
 
   useEffect(() => {
-    setCurrentSpot(getRandomSpot());
-  }, []);
+    const newSequence = generateQuestionSequence();
+    setQuestionSequence(newSequence);
+    setCurrentSpot(WORLD_SPOTS[newSequence[0]]);
+  }, []); 
 
   const handleMapPress = (e) => {
     if (showActualLocation) return; 
@@ -54,41 +81,62 @@ export default function WorldGameScreen() {
 
   const handleConfirmLocation = () => {
     if (!selectedLocation || showActualLocation) return;
-    // if (!selectedLocation) {
-    //   Alert.alert("提示", "请先在地图上选择一个位置");
-    //   return;
-    // }
 
-    // 计算得分（距离越近得分越高）
-    const newScore = Math.max(100, Math.round(1000 - distance/5000));
+    // 计算得分
+    const newScore = Math.max(20, Math.round(100 - distance/25));
     setCurrentScore(newScore);
     setShowActualLocation(true);
 
-    // Alert.alert(
-    //   "位置确认",
-    //   `距离实际位置: ${distance/1000} 公里\n本次得分: ${newScore}分`,
-    //   [
-    //     { 
-    //       text: "下一题", 
-    //       onPress: () => {
-    //         setScore(score + newScore);
-    //         // setCurrentSpot(getRandomSpot());
-    //         // setSelectedLocation(null);
-    //         setDistance(null);
-    //       }
-    //     }
-    //   ]
-    // );
+    // 动画移动到正确位置
+    const region = {
+      latitude: (selectedLocation.latitude + currentSpot.coordinates.latitude) / 2,
+      longitude: (selectedLocation.longitude + currentSpot.coordinates.longitude) / 2,
+      latitudeDelta: Math.abs(selectedLocation.latitude - currentSpot.coordinates.latitude) * 2,
+      longitudeDelta: Math.abs(selectedLocation.longitude - currentSpot.coordinates.longitude) * 2,
+    };
+
+    // 确保缩放级别不会太大
+    region.latitudeDelta = Math.max(region.latitudeDelta, 0.5);
+    region.longitudeDelta = Math.max(region.longitudeDelta, 0.5);
+
+    // 添加一点padding以确保两个标记都在视图中
+    mapRef.current?.animateToRegion(region, 1000);
   };
 
   const handleNextSpot = async () => {
     const finalScore = score + currentScore;
-    setCurrentSpot(getRandomSpot());
-    setSelectedLocation(null);
-    setDistance(null);
-    setShowActualLocation(false);
-    setCurrentScore(0);
-    setScore(finalScore);
+    
+    if (questionCount >= 5) {
+      Alert.alert(
+        "游戏结束",
+        `您的最终得分是: ${finalScore}分`,
+        [
+          {
+            text: "重新开始",
+            onPress: () => {
+              const newSequence = generateQuestionSequence();
+              setQuestionSequence(newSequence);
+              setQuestionCount(1);
+              setScore(0);
+              setCurrentSpot(WORLD_SPOTS[newSequence[0]]);
+              setSelectedLocation(null);
+              setDistance(null);
+              setShowActualLocation(false);
+              setCurrentScore(0);
+            }
+          }
+        ]
+      );
+    } else {
+      // Continue to next question
+      setQuestionCount(questionCount + 1);
+      setCurrentSpot(WORLD_SPOTS[questionSequence[questionCount]]);
+      setSelectedLocation(null);
+      setDistance(null);
+      setShowActualLocation(false);
+      setCurrentScore(0);
+      setScore(finalScore);
+    }
     
     // 后台保存分数记录
     try {
@@ -96,7 +144,7 @@ export default function WorldGameScreen() {
       const history = existingHistory ? JSON.parse(existingHistory) : [];
       
       const newRecord = {
-        score: finalScore,
+        score: score,
         date: new Date().toLocaleString('zh-CN'),
       };
       
@@ -138,6 +186,7 @@ export default function WorldGameScreen() {
     <View style={styles.container}>
       <View style={styles.mapContainer}>
         <MapView
+          ref={mapRef}
           style={styles.map}
           initialRegion={{
             latitude: 20,
@@ -176,11 +225,7 @@ export default function WorldGameScreen() {
         {/* 悬浮信息框 */}
         <View style={styles.floatingInfo}>
           <Text style={styles.scoreText}>总分: {score}</Text>
-          {/* {distance && (
-            <Text style={styles.distanceText}>
-              距离: {(distance/1000).toFixed(1)} 公里
-            </Text>
-          )} */}
+          <Text style={styles.questionCountText}>第 {questionCount}/5 题</Text>
           {showActualLocation && (
             <Text style={styles.currentScoreText}>
               本次得分: {currentScore}
@@ -190,16 +235,24 @@ export default function WorldGameScreen() {
         
         {/* 按钮容器 */}
         <View style={styles.buttonContainer}>
-          <Button
-            title="确定位置"
+          <TouchableOpacity
+            style={[
+              styles.button,
+              (!selectedLocation || showActualLocation) && styles.buttonDisabled
+            ]}
             onPress={handleConfirmLocation}
             disabled={!selectedLocation || showActualLocation}
-          />
+          >
+            <Text style={styles.buttonText}>确定位置</Text>
+          </TouchableOpacity>
+          
           {showActualLocation && (
-            <Button
-              title="下一题"
+            <TouchableOpacity
+              style={styles.button}
               onPress={handleNextSpot}
-            />
+            >
+              <Text style={styles.buttonText}>下一题</Text>
+            </TouchableOpacity>
           )}
         </View>
       </View>
@@ -224,108 +277,4 @@ export default function WorldGameScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  mapContainer: {
-    height: screenHeight * 0.5,
-    position: 'relative',
-  },
-  map: {
-    flex: 1,
-  },
-  infoContainer: {
-    position: 'absolute',
-    bottom: 20,
-    alignSelf: 'center',
-    // backgroundColor: 'white',
-    // padding: 10,
-    // borderRadius: 5,
-    // elevation: 5,
-    // shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    alignItems: 'center',
-  },
-  distanceText: {
-    fontSize: 16,
-    marginBottom: 10,
-    fontWeight: 'bold',
-  },
-  imageContainer: {
-    height: screenHeight * 0.5,
-    backgroundColor: '#f0f0f0',
-    padding: 10,
-  },
-  imageWrapper: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  image: {
-    width: '100%',
-    height: '90%',
-  },
-  spotName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  viewFullImage: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 0,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-  },
-  modalBackground: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalImage: {
-    width: screenWidth,
-    height: screenHeight * 0.8,
-  },
-  scoreText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: '#2196F3',
-    marginBottom: 10,
-  },
-  floatingInfo: {
-    position: 'absolute',
-    top: 20,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    padding: 15,
-    borderRadius: 10,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  buttonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    // backgroundColor: 'rgba(255,255,255,0.9)',
-    padding: 10,
-    borderRadius: 10,
-    // elevation: 5,
-  },
-});
+

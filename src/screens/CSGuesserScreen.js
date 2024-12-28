@@ -202,11 +202,11 @@ export default function CSGuesserScreen() {
             本题得分: {currentScore}
           </Text>
         )}
-        {selectedPosition && showCorrectPosition && (
+        {/* {selectedPosition && showCorrectPosition && (
           <Text style={styles.positionText}>
             选择位置: X:{selectedPosition.x.toFixed(1)}, Y:{selectedPosition.y.toFixed(1)}
           </Text>
-        )}
+        )} */}
         <Text style={styles.totalScoreText}>总分: {score}</Text>
       </View>
 
