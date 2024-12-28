@@ -4,11 +4,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from './src/screens/HomeScreen';
 import MyScreen from './src/screens/MyScreen';
-import ScoreHistoryScreen from './src/screens/ScoreHistoryScreen';
 
 import LoginScreen from './src/screens/LoginScreen';
 import GameScreen from './src/screens/GameScreen';
 import WorldGameScreen from './src/screens/WorldGameScreen';
+import CSGuesserScreen from './src/screens/CSGuesserScreen';
+import ScoreHistoryScreen from './src/screens/ScoreHistoryScreen';
 import ProfileEditScreen from './src/screens/ProfileEditScreen';
 
 const Stack = createStackNavigator();
@@ -43,6 +44,11 @@ export default function App() {
           options={{ title: '世界景点图寻' }} 
         />
         <Stack.Screen 
+          name="CSGuesser" 
+          component={CSGuesserScreen}
+          options={{ title: 'CS 图寻' }}
+        />
+        <Stack.Screen 
           name="ScoreHistoryScreen" 
           component={ScoreHistoryScreen} 
           options={{ title: '历史成绩' }} 
@@ -52,7 +58,6 @@ export default function App() {
           component={ProfileEditScreen}
           options={{ title: '个人资料修改' }}
         />
-
       </Stack.Navigator>
     </NavigationContainer>
   );

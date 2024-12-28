@@ -55,12 +55,7 @@ const MyScreen = ({ navigation }) => {
         >
           <Text style={styles.sectionText}>我的历史成绩</Text>
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.section} 
-          onPress={() => alert('跳转到系统设置页面')}
-        >
-          <Text style={styles.sectionText}>系统设置</Text>
-        </TouchableOpacity>
+        
       </View>
     </ImageBackground>
   );
