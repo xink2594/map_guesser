@@ -31,6 +31,7 @@ export default function CSGuesserScreen() {
   const [gameOver, setGameOver] = useState(false);
   const [isMapCorrect, setIsMapCorrect] = useState(false);
   const [usedSpots, setUsedSpots] = useState([]);
+  const [roundScores, setRoundScores] = useState([]);
 
   const getRandomSpot = () => {
     // 创建所有可用题目的数组
@@ -108,21 +109,22 @@ export default function CSGuesserScreen() {
   };
 
   const handleSubmitPosition = () => {
-    if (!selectedPosition) return;
+    if (!selectedPosition || showCorrectPosition) return;
     
     setShowCorrectPosition(true);
     const mapIsCorrect = currentSpot.correctMap.id === selectedMap.id;
     setIsMapCorrect(mapIsCorrect);
     
+    let newScore = 0;
     if (mapIsCorrect) {
       const distance = calculateDistance(selectedPosition, currentSpot.coordinates);
-      const newScore = Math.max(0, Math.round(100 - distance * 2));
+      newScore = Math.max(0, Math.round(100 - distance * 2));
       setCurrentScore(newScore);
       setScore(prevScore => prevScore + newScore);
-    } else {
-      setCurrentScore(0);
-      setSelectedMap(currentSpot.correctMap);
     }
+
+    // 记录这一轮的得分
+    setRoundScores(prev => [...prev, newScore]);
   };
 
   const calculateDistance = (point1, point2) => {
@@ -133,6 +135,7 @@ export default function CSGuesserScreen() {
   };
 
   const handleNextRound = async () => {
+    const finalScore = score + currentScore;
     if (currentRound >= MAX_ROUNDS) {
       setGameOver(true);
       Alert.alert(
@@ -149,6 +152,7 @@ export default function CSGuesserScreen() {
           setShowCorrectPosition(false);
           setCurrentScore(null);
           setIsMapCorrect(false);
+          setRoundScores([]); // 重置轮次得分
           const initialSpot = getRandomSpot();
           setCurrentSpot(initialSpot);
           setUsedSpots([initialSpot]);
@@ -161,8 +165,9 @@ export default function CSGuesserScreen() {
         const history = existingHistory ? JSON.parse(existingHistory) : [];
         
         const newRecord = {
-          score: score,
+          score: finalScore,
           date: new Date().toLocaleString('zh-CN'),
+          roundScores: roundScores, // 保存轮次得分
         };
         
         history.unshift(newRecord);
@@ -173,17 +178,19 @@ export default function CSGuesserScreen() {
       }
 
       return;
+    }else {
+      const nextSpot = getRandomSpot();
+      setCurrentSpot(nextSpot);
+      setUsedSpots(prev => [...prev, nextSpot]);
+      setCurrentRound(prev => prev + 1);
+      setSelectedMap(null);
+      setSelectedPosition(null);
+      setShowMapSelection(true);
+      setShowCorrectPosition(false);
+      setCurrentScore(null);
     }
 
-    const nextSpot = getRandomSpot();
-    setCurrentSpot(nextSpot);
-    setUsedSpots(prev => [...prev, nextSpot]);
-    setCurrentRound(prev => prev + 1);
-    setSelectedMap(null);
-    setSelectedPosition(null);
-    setShowMapSelection(true);
-    setShowCorrectPosition(false);
-    setCurrentScore(null);
+    
   };
 
   if (!currentSpot) return (

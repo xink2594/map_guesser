@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ScoreHistoryScreen = () => {
@@ -7,6 +7,8 @@ const ScoreHistoryScreen = () => {
   const [westlakeHistory, setWestlakeHistory] = useState([]);
   const [worldHistory, setWorldHistory] = useState([]);
   const [csHistory, setCsHistory] = useState([]);
+  const [selectedScore, setSelectedScore] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     loadAllHistory();
@@ -36,11 +38,60 @@ const ScoreHistoryScreen = () => {
     }
   };
 
+  const renderScoreDetails = () => {
+    if (!selectedScore) return null;
+
+    return (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(false);
+          setSelectedScore(null);
+        }}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => {
+            setModalVisible(false);
+            setSelectedScore(null);
+          }}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>详细得分</Text>
+            <Text style={styles.modalScore}>最终得分: {selectedScore.score}</Text>
+            <Text style={styles.modalDate}>日期: {selectedScore.date}</Text>
+            {selectedScore.roundScores && (
+              <View style={styles.roundScores}>
+                {selectedScore.roundScores.map((score, index) => (
+                  <Text key={index} style={styles.roundScore}>
+                    第 {index + 1} 题: {score} 分
+                  </Text>
+                ))}
+              </View>
+            )}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
+  };
+
   const renderItem = ({ item }) => (
-    <View style={styles.scoreItem}>
-      <Text style={styles.scoreText}>得分: {item.score}</Text>
-      <Text style={styles.dateText}>日期: {item.date}</Text>
-    </View>
+    <TouchableOpacity 
+      style={styles.scoreItem}
+      onPress={() => {
+        setSelectedScore(item);
+        setModalVisible(true);
+      }}
+    >
+      <View style={styles.scoreHeader}>
+        <Text style={styles.scoreText}>得分: {item.score}</Text>
+        <Text style={styles.dateText}>{item.date}</Text>
+      </View>
+      <Text style={styles.tapHint}>点击查看详情</Text>
+    </TouchableOpacity>
   );
 
   const renderTabContent = () => {
@@ -108,9 +159,22 @@ const ScoreHistoryScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.contentContainer}>
+        {/* <View style={styles.contentContainer}>
           {renderTabContent()}
+        </View> */}
+        <View style={styles.contentContainer}>
+          <FlatList
+            data={activeTab === 'westlake' ? westlakeHistory : 
+                  activeTab === 'world' ? worldHistory : 
+                  csHistory}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => index.toString()}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>暂无历史记录</Text>
+            }
+          />
         </View>
+        {renderScoreDetails()}
       </View>
     </ImageBackground>
   );
@@ -184,6 +248,65 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white',
     marginTop: 20,
+  },
+  scoreItem: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    padding: 16,
+    marginBottom: 8,
+    borderRadius: 8,
+    elevation: 2,
+  },
+  scoreHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  tapHint: {
+    color: '#666',
+    fontSize: 12,
+    marginTop: 8,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    width: '80%',
+    maxHeight: '80%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  modalScore: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#007AFF',
+    marginBottom: 8,
+  },
+  modalDate: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 16,
+  },
+  roundScores: {
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    paddingTop: 16,
+  },
+  roundScore: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: '#333',
   },
 });
 

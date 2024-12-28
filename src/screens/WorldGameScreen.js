@@ -30,6 +30,7 @@ export default function WorldGameScreen() {
   const [currentScore, setCurrentScore] = useState(0);
   const [questionCount, setQuestionCount] = useState(1);
   const [questionSequence, setQuestionSequence] = useState([]);
+  const [roundScores, setRoundScores] = useState([]); // 添加轮次得分状态
   const mapRef = React.useRef(null);
 
   const generateQuestionSequence = () => {
@@ -87,6 +88,9 @@ export default function WorldGameScreen() {
     setCurrentScore(newScore);
     setShowActualLocation(true);
 
+    // 记录这一轮的得分
+    setRoundScores(prev => [...prev, newScore]);
+
     // 动画移动到正确位置
     const region = {
       latitude: (selectedLocation.latitude + currentSpot.coordinates.latitude) / 2,
@@ -123,6 +127,7 @@ export default function WorldGameScreen() {
               setDistance(null);
               setShowActualLocation(false);
               setCurrentScore(0);
+              setRoundScores([]);// 重置轮次得分
             }
           }
         ]
@@ -136,6 +141,7 @@ export default function WorldGameScreen() {
         const newRecord = {
           score: finalScore,
           date: new Date().toLocaleString('zh-CN'),
+          roundScores: roundScores, // 保存轮次得分
         };
         
         history.unshift(newRecord);
@@ -278,5 +284,4 @@ export default function WorldGameScreen() {
     </View>
   );
 }
-
 

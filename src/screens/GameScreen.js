@@ -30,6 +30,7 @@ export default function GameScreen() {
   const [currentScore, setCurrentScore] = useState(0);
   const [questionCount, setQuestionCount] = useState(1);
   const [questionSequence, setQuestionSequence] = useState([]);
+  const [roundScores, setRoundScores] = useState([]);
   const mapRef = React.useRef(null);
 
   const generateQuestionSequence = () => {
@@ -87,6 +88,9 @@ export default function GameScreen() {
     setCurrentScore(newScore);
     setShowActualLocation(true);
 
+    // 记录这一轮的得分
+    setRoundScores(prev => [...prev, newScore]);
+
     // 动画移动到正确位置
     const region = {
       latitude: (selectedLocation.latitude + currentSpot.coordinates.latitude) / 2,
@@ -112,7 +116,7 @@ export default function GameScreen() {
         `您的最终得分是: ${finalScore}分`,
         [
           {
-            text: "重新开始",
+            text: "确定",
             onPress: () => {
               const newSequence = generateQuestionSequence();
               setQuestionSequence(newSequence);
@@ -123,11 +127,12 @@ export default function GameScreen() {
               setDistance(null);
               setShowActualLocation(false);
               setCurrentScore(0);
+              setRoundScores([]);
             }
           }
         ]
       );
-
+      
       try {
         const existingHistory = await AsyncStorage.getItem('westlakeHistory');
         const history = existingHistory ? JSON.parse(existingHistory) : [];
@@ -135,6 +140,8 @@ export default function GameScreen() {
         const newRecord = {
           score: finalScore,
           date: new Date().toLocaleString('zh-CN'),
+          // roundScores: [...roundScores, currentScore], // 保存每轮得分
+          roundScores: roundScores,
         };
         
         history.unshift(newRecord);
