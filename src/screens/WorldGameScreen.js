@@ -127,6 +127,23 @@ export default function WorldGameScreen() {
           }
         ]
       );
+
+      // 后台保存分数记录
+      try {
+        const existingHistory = await AsyncStorage.getItem('scoreHistory');
+        const history = existingHistory ? JSON.parse(existingHistory) : [];
+        
+        const newRecord = {
+          score: finalScore,
+          date: new Date().toLocaleString('zh-CN'),
+        };
+        
+        history.unshift(newRecord);
+        const updatedHistory = history.slice(0, 20);
+        await AsyncStorage.setItem('scoreHistory', JSON.stringify(updatedHistory));
+      } catch (error) {
+        console.error('保存分数失败:', error);
+      }
     } else {
       // Continue to next question
       setQuestionCount(questionCount + 1);
@@ -138,22 +155,7 @@ export default function WorldGameScreen() {
       setScore(finalScore);
     }
     
-    // 后台保存分数记录
-    try {
-      const existingHistory = await AsyncStorage.getItem('scoreHistory');
-      const history = existingHistory ? JSON.parse(existingHistory) : [];
-      
-      const newRecord = {
-        score: score,
-        date: new Date().toLocaleString('zh-CN'),
-      };
-      
-      history.unshift(newRecord);
-      const updatedHistory = history.slice(0, 20);
-      await AsyncStorage.setItem('scoreHistory', JSON.stringify(updatedHistory));
-    } catch (error) {
-      console.error('保存分数失败:', error);
-    }
+    
   };
 
   const ImageModal = () => (
