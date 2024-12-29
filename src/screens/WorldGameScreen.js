@@ -84,7 +84,7 @@ export default function WorldGameScreen() {
     if (!selectedLocation || showActualLocation) return;
 
     // 计算得分
-    const newScore = Math.max(20, Math.round(100 - distance/25));
+    const newScore = Math.max(200, Math.round(1000 - distance/5000));
     setCurrentScore(newScore);
     setShowActualLocation(true);
 

@@ -123,6 +123,9 @@ export default function CSGuesserScreen() {
       newScore = Math.max(0, Math.round(100 - distance * 2));
       setCurrentScore(newScore);
       setScore(prevScore => prevScore + newScore);
+    }else {
+      setCurrentScore(0);
+      setSelectedMap(currentSpot.correctMap);
     }
 
     // 记录这一轮的得分
