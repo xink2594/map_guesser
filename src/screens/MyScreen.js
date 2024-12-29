@@ -4,16 +4,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 
 const MyScreen = ({ navigation }) => {
-  const [nickname, setNickname] = useState('用户名');
-  const [userId, setUserId] = useState('123456');
+  const [nickname, setNickname] = useState('初始用户');
+  const [userId, setUserId] = useState('');  // 初始值设为空字符串
 
   const loadUserProfile = async () => {
     try {
-      const savedNickname = await AsyncStorage.getItem('userNickname');
-      const savedUserId = await AsyncStorage.getItem('userId');
+      // 获取登录时保存的用户名作为ID
+      const savedUsername = await AsyncStorage.getItem('username');
+      if (savedUsername) {
+        setUserId(savedUsername);
+      }
 
-      if (savedNickname) setNickname(savedNickname);
-      if (savedUserId) setUserId(savedUserId);
+      // 获取保存的昵称
+      const savedNickname = await AsyncStorage.getItem('nickname');
+      if (savedNickname) {
+        setNickname(savedNickname);
+      }
     } catch (error) {
       console.error('加载用户信息失败:', error);
     }

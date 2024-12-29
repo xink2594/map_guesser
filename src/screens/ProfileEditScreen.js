@@ -21,11 +21,17 @@ const ProfileEditScreen = ({ navigation }) => {
 
   const loadUserProfile = async () => {
     try {
-      const savedNickname = await AsyncStorage.getItem('userNickname');
-      const savedUserId = await AsyncStorage.getItem('userId');
+      // 获取登录时保存的用户名作为ID
+      const savedUsername = await AsyncStorage.getItem('username');
+      if (savedUsername) {
+        setUserId(savedUsername);
+      }
 
-      if (savedNickname) setNickname(savedNickname);
-      if (savedUserId) setUserId(savedUserId);
+      // 获取保存的昵称，如果有的话
+      const savedNickname = await AsyncStorage.getItem('nickname');
+      if (savedNickname) {
+        setNickname(savedNickname);
+      }
     } catch (error) {
       console.error('加载用户信息失败:', error);
     }
@@ -34,8 +40,7 @@ const ProfileEditScreen = ({ navigation }) => {
   // 保存修改
   const handleSave = async () => {
     try {
-      await AsyncStorage.setItem('userNickname', nickname);
-      await AsyncStorage.setItem('userId', userId);
+      await AsyncStorage.setItem('nickname', nickname);
       
       Alert.alert('成功', '个人资料已更新', [
         {
@@ -71,11 +76,14 @@ const ProfileEditScreen = ({ navigation }) => {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>ID:</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              styles.inputDisabled
+            ]}
             value={userId}
-            onChangeText={setUserId}
             placeholder="请输入ID"
             placeholderTextColor="#666"
+            editable={false}
           />
         </View>
 
@@ -130,6 +138,16 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  input: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    padding: 10,
+    borderRadius: 5,
+    fontSize: 16,
+  },
+  inputDisabled: {
+    backgroundColor: 'rgba(200,200,200,0.9)',  // 灰色背景
+    color: '#666',  // 灰色文字
   },
 });
 
