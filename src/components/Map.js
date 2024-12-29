@@ -1,4 +1,3 @@
-// components/Map.js
 import MapView, { Marker } from 'react-native-maps';
 
 const Map = ({ onLocationSelect }) => {
