@@ -124,10 +124,6 @@ export const styles = StyleSheet.create({
       shadowRadius: 3.84,
       elevation: 5,
     },
-    line: {
-      height: 0,
-      position: 'absolute',
-    },
     errorText: {
         fontSize: 18,
         color: 'red',
@@ -141,5 +137,35 @@ export const styles = StyleSheet.create({
     },
     mapPressed: {
       // opacity: 0.01,
+    },
+    button: {
+      backgroundColor: '#2196F3',
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      borderRadius: 8,
+      minWidth: 120,
+      elevation: 3,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+    },
+    buttonText: {
+      color: 'white',
+      fontSize: 16,
+      fontWeight: 'bold',
+      textAlign: 'center',
+    },
+    buttonDisabled: {
+      backgroundColor: '#B0BEC5',
+      opacity: 0.7,
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      padding: 10,
     },
   });

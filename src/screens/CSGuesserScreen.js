@@ -102,7 +102,9 @@ export default function CSGuesserScreen() {
       left: `${point1.x}%`,
       top: `${point1.y}%`,
       transformOrigin: 'left',
-      borderWidth: 2,
+      height: 2,                    // 使用固定高度
+      backgroundColor: 'transparent',// 确保背景透明
+      borderTopWidth: 2,           // 只使用顶部边框
       borderStyle: 'dashed',
       borderColor: '#FFFFFF',
     };
@@ -251,22 +253,33 @@ export default function CSGuesserScreen() {
         /* 位置选择界面 */
         <View style={styles.positionSelection}>
           <View style={styles.headerButtons}>
-            <Button
-              title="返回选择地图"
+            <TouchableOpacity
+              style={[
+                styles.button,
+                showCorrectPosition && styles.buttonDisabled
+              ]}
               onPress={handleBackToMapSelection}
-              disabled={showCorrectPosition} // 提交后禁用返回按钮
-            />
+              disabled={showCorrectPosition}
+            >
+              <Text style={styles.buttonText}>返回选择地图</Text>
+            </TouchableOpacity>
+            
             {selectedPosition && !showCorrectPosition && (
-              <Button
-                title="提交位置"
+              <TouchableOpacity
+                style={styles.button}
                 onPress={handleSubmitPosition}
-              />
+              >
+                <Text style={styles.buttonText}>提交位置</Text>
+              </TouchableOpacity>
             )}
+            
             {showCorrectPosition && (
-              <Button
-                title="下一题"
+              <TouchableOpacity
+                style={styles.button}
                 onPress={handleNextRound}
-              />
+              >
+                <Text style={styles.buttonText}>下一题</Text>
+              </TouchableOpacity>
             )}
           </View>
 
@@ -303,6 +316,11 @@ export default function CSGuesserScreen() {
                   {/* 地图正确时显示选择位置和连线 */}
                   {isMapCorrect && (
                     <>
+                      <View 
+                        style={[
+                          calculateLineStyle(selectedPosition, currentSpot.coordinates)
+                        ]} 
+                      />
                       <View
                         style={[
                           styles.marker,
@@ -312,12 +330,6 @@ export default function CSGuesserScreen() {
                             top: `${selectedPosition.y}%`
                           }
                         ]}
-                      />
-                      <View 
-                        style={[
-                          styles.line,
-                          calculateLineStyle(selectedPosition, currentSpot.coordinates)
-                        ]} 
                       />
                     </>
                   )}
