@@ -94,42 +94,14 @@ const ScoreHistoryScreen = () => {
     </TouchableOpacity>
   );
 
-  const renderTabContent = () => {
-    let data = [];
-    switch (activeTab) {
-      case 'westlake':
-        data = westlakeHistory;
-        break;
-      case 'world':
-        data = worldHistory;
-        break;
-      case 'cs':
-        data = csHistory;
-        break;
-    }
-
-    return (
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>暂无历史记录</Text>
-        }
-      />
-    );
-  };
-
   return (
     <ImageBackground
       source={require('../../assets/img/background.jpg')}
       style={styles.background}
       resizeMode="cover"
-      defaultSource={require('../../assets/img/background.jpg')}
+      // defaultSource={require('../../assets/img/background.jpg')}
     >
-      <View style={styles.container}>
-        <Text style={styles.title}>历史成绩</Text>
-        
+      <View style={styles.container}>        
         <View style={styles.tabContainer}>
           <TouchableOpacity 
             style={[styles.tab, activeTab === 'westlake' && styles.activeTab]}
@@ -159,9 +131,6 @@ const ScoreHistoryScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* <View style={styles.contentContainer}>
-          {renderTabContent()}
-        </View> */}
         <View style={styles.contentContainer}>
           <FlatList
             data={activeTab === 'westlake' ? westlakeHistory : 
@@ -172,6 +141,8 @@ const ScoreHistoryScreen = () => {
             ListEmptyComponent={
               <Text style={styles.emptyText}>暂无历史记录</Text>
             }
+            // refreshing={}
+            // onRefresh={}
           />
         </View>
         {renderScoreDetails()}

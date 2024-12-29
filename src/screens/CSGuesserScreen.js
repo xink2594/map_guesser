@@ -111,7 +111,7 @@ export default function CSGuesserScreen() {
   };
 
   const handleSubmitPosition = () => {
-    if (!selectedPosition || showCorrectPosition) return;
+    if (!selectedPosition || showCorrectPosition) return;// 未选择位置或已展示正确位置时返回
     
     setShowCorrectPosition(true);
     const mapIsCorrect = currentSpot.correctMap.id === selectedMap.id;
@@ -120,12 +120,12 @@ export default function CSGuesserScreen() {
     let newScore = 0;
     if (mapIsCorrect) {
       const distance = calculateDistance(selectedPosition, currentSpot.coordinates);
-      newScore = Math.max(0, Math.round(100 - distance * 2));
+      newScore = Math.max(20, Math.round(100 - distance * 2));
       setCurrentScore(newScore);
       setScore(prevScore => prevScore + newScore);
     }else {
       setCurrentScore(0);
-      setSelectedMap(currentSpot.correctMap);
+      setSelectedMap(currentSpot.correctMap);// 错误时显示正确地图
     }
 
     // 记录这一轮的得分
@@ -158,6 +158,7 @@ export default function CSGuesserScreen() {
           setCurrentScore(null);
           setIsMapCorrect(false);
           setRoundScores([]); // 重置轮次得分
+
           const initialSpot = getRandomSpot();
           setCurrentSpot(initialSpot);
           setUsedSpots([initialSpot]);
@@ -299,7 +300,7 @@ export default function CSGuesserScreen() {
               style={styles.fullMap}
               resizeMode="contain"
             >
-              {/* 未提交答案时显示选择位置 */}
+              {/* 未提交答案,未展示正确位置时显示选择位置 */}
               {selectedPosition && !showCorrectPosition && (
                 <View
                   style={[
